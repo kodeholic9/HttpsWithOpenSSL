@@ -12,9 +12,6 @@
 extern "C" {
 #endif
 
-#define MAX_NOTICE_MEMBER_NUM  200
-#define MAX_CHAT_MEMBER_NUM    200
-#define MAX_KEY_LEN            32
 #define MAX_SEGMENT_SIZE      (15 * 1024)
 
 #define MIN(a, b) (a < b ? a : b)
