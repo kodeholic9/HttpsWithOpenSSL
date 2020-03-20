@@ -1,5 +1,5 @@
-#ifndef __TI2_COMMON_H__
-#define __TI2_COMMON_H__
+#ifndef __MY_COMMON_H__
+#define __MY_COMMON_H__
 
 #include <stdlib.h>
 #include <stdio.h>
