@@ -5,16 +5,15 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+
+    <Button
+        android:id="@+id/bt_invoke"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/ll_refresh">
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/ll_list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:divider="@null"
-            android:orientation="vertical"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+        android:layout_height="wrap_content"
+        android:text="invoke"/>
+    <TextView
+        android:id="@+id/tv_result"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""/>
 </LinearLayout>

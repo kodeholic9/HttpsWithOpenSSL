@@ -1,32 +1,26 @@
 package com.kodeholic.httpswithopenssl;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.Button;
 import android.widget.TextView;
 
-import com.kodeholic.httpswithopenssl.common.BitmapCacheManager;
-import com.kodeholic.httpswithopenssl.common.BookManager;
 import com.kodeholic.httpswithopenssl.common.PopupManager;
-import com.kodeholic.httpswithopenssl.common.data.Book;
-import com.kodeholic.httpswithopenssl.common.data.BookListRes;
+import com.kodeholic.httpswithopenssl.lib.http.HttpInvoker;
+import com.kodeholic.httpswithopenssl.lib.http.HttpListener;
+import com.kodeholic.httpswithopenssl.lib.http.HttpRequest;
 import com.kodeholic.httpswithopenssl.lib.http.HttpResponse;
-import com.kodeholic.httpswithopenssl.lib.util.Log;
 
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = MainActivity.class.getSimpleName();
 
     private Context mContext;
-    private NewListAdapter mAdapter;
-    private RecyclerView mListView;
-    private SwipeRefreshLayout mPullToRefresh;
+
+    private Button bt_invoke;
+    private TextView tv_result;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,116 +28,59 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mContext = this;
+        bt_invoke = findViewById(R.id.bt_invoke);
+        tv_result = findViewById(R.id.tv_result);
 
-        //adapter
-        mAdapter = new NewListAdapter(new Book[0]);
-
-        //list..
-        mListView = findViewById(R.id.ll_list);
-        mListView.setHasFixedSize(true);
-        mListView.setAdapter(mAdapter);
-
-        mPullToRefresh = findViewById(R.id.ll_refresh);
-        mPullToRefresh.setOnRefreshListener(mRefreshListener);
-        mPullToRefresh.setColorSchemeResources(R.color.colorPrimary,
-                android.R.color.holo_green_dark,
-                android.R.color.holo_orange_dark,
-                android.R.color.holo_blue_dark);
-    }
-
-    private void updateView(final Book[] books, String f) {
-        Log.d(TAG, "updateView() - f: " + f);
-        mListView.post(new Runnable() {
+        bt_invoke.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void run() {
-                mAdapter.setData(books);
-                mAdapter.notifyDataSetChanged();
+            public void onClick(View v) {
+                SampleInvoker invoker = new SampleInvoker(mContext);
+                invoker.invoke("https://www.googleapis.com/youtube/v3/channels?part=contentDetails", new HttpListener() {
+                    @Override public void onProgress(int httpSequence, int current, int total) { }
+                    @Override
+                    public void onResponse(int httpSequence, int httpReason, HttpResponse httpResponse) {
+                        updateView(httpResponse.getContents());
+                    }
+                });
             }
         });
     }
 
-    private SwipeRefreshLayout.OnRefreshListener mRefreshListener = new SwipeRefreshLayout.OnRefreshListener() {
-        @Override
-        public void onRefresh() {
-
-            BookManager.getInstance(mContext).newList(new BookManager.Listener() {
-                @Override
-                public void onResponse(HttpResponse response) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mPullToRefresh.setRefreshing(false);
-                        }
-                    });
-
-                    if (response.isSUCC()) {
-                        BookListRes jsonRes = (BookListRes) response.getObject();
-                        if (jsonRes != null || jsonRes.getError() != 0) {
-                            updateView(jsonRes.getBookList().toArray(new Book[0]), "onResponse");
-                        }
-                    }
-                }
-            }, "onRefresh()");
-        }
-    };
-
-    public class NewListAdapter extends RecyclerView.Adapter<BookItemViewHolder> {
-        private Book[] data;
-        private boolean detailStarting = false;
-
-        public NewListAdapter(Book[] data) {
-            this.data = data;
-        }
-
-        public void setData(Book[] data) {
-            this.data = data;
-        }
-
-        @Override
-        public BookItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_book, parent, false);
-            return new BookItemViewHolder(itemView);
-        }
-
-        @Override
-        public void onBindViewHolder(final BookItemViewHolder holder, final int position) {
-            final Book item = data[position];
-            holder.tv_title.setText(item.getTitle());
-            holder.tv_subtitle.setText(item.getSubTitle());
-            holder.tv_isbn13.setText("(" + item.getIsbn13() + ")");
-            holder.tv_price.setText(item.getPrice());
-            //이미지를 view에 붙인다.
-            BitmapCacheManager.getInstance(mContext).loadBitmap(
-                    item.getImage(),
-                    holder.iv_image,
-                    TAG);
-        }
-
-        @Override
-        public int getItemCount() {
-            return data.length;
-        }
+    private void updateView(final String result) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                tv_result.setText(result);
+            }
+        });
     }
 
-    public class BookItemViewHolder extends RecyclerView.ViewHolder {
-        public ImageView iv_image;
-        public TextView tv_title;
-        public TextView  tv_subtitle;
-        public TextView  tv_isbn13;
-        public TextView  tv_price;
-        public View      ll_link;
-        public View      rowView;
+    public class SampleInvoker extends HttpInvoker {
+        public SampleInvoker(Context context) {
+            super(context, false);
+        }
 
-        public BookItemViewHolder(View itemView) {
-            super(itemView);
+        public int invoke(String url, HttpListener listener) {
+            return invoke(0, new HttpRequestImpl(url), listener);
+        }
 
-            rowView     = itemView;
-            iv_image    = itemView.findViewById(R.id.iv_image);
-            tv_title    = itemView.findViewById(R.id.tv_title);
-            tv_subtitle = itemView.findViewById(R.id.tv_subtitle);
-            tv_isbn13   = itemView.findViewById(R.id.tv_isbn13);
-            tv_price    = itemView.findViewById(R.id.tv_price);
-            ll_link     = itemView.findViewById(R.id.ll_link);
+        private class HttpRequestImpl extends HttpRequest {
+            private String url;
+            public HttpRequestImpl(String url) {
+                super(getContext());
+                this.url = url;
+            }
+
+            @Override
+            public int onRequest() throws Exception {
+                mHttp.putPath(this.url);
+                return mHttp.get();
+            }
+
+            @Override
+            public void onResponse(int sequence, int reason, HttpResponse response) {
+                onComplete(sequence, reason, response);
+            }
         }
     }
 }

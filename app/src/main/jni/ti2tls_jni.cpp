@@ -658,7 +658,7 @@ static int tls_verify_result(SSL *ssl, const char *host) {
     if ((cc = SSL_get_verify_result(ssl)) != X509_V_OK) {
         LOGE("tls_verify_result() - fail to SSL_get_verify_result() - cc: %d, %s",
              cc, ERR_error_string(ERR_get_error(), NULL));
-        return -1;
+        //return -1;
     }
 
     /*Check the cert chain. The chain length
@@ -914,7 +914,7 @@ int tls_open(int type, const char *host, int port, char *cert, int cert_len, cha
     // certificate check
     LOGD("tls_open() - TLSCONN_ID(%d|%d) ... 5", tlsconn_id, p_tlsconn->type);
     if ((cc = tls_verify_result(p_tlsconn->ssl, host)) == -1) {
-        LOGE("tls_open() - fail to SSL_get_verify_result() - cc: %d, %s",
+        LOGE("tls_open() - fail to tls_verify_result() - cc: %d, %s",
              cc, ERR_error_string(ERR_get_error(), NULL));
         TLSCONN_FREE(TLSCONN_ID(p_tlsconn), "tls_open()");
         return -1;
