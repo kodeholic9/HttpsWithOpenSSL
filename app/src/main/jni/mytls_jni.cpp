@@ -21,9 +21,9 @@
 extern "C" {
 #endif
 
-#include "ti2.h"
+#include "mytls.h"
 
-static const char *TAG = "TI2TLS";
+static const char *TAG = "TLS";
 static const int MAX_BUFFER_SIZE (32*1024);
 
 ///////////////////////////////////////////////////////

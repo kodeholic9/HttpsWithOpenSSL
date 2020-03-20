@@ -14,8 +14,8 @@ import java.net.InetAddress;
 import java.net.SocketTimeoutException;
 
 public class TLSNativeIF {
-    public static final String TAG = "TI2TLS";
-    public static final String LIB_NAME = "ti2tls_jni";
+    public static final String TAG = "TLS";
+    public static final String LIB_NAME = "mytls_jni";
 
     public static final int MAX_WRITTEN_SIZE = 2048;
 
