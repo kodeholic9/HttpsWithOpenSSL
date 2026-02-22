@@ -46,4 +46,4 @@ TLS 프로토콜의 단계별 동작 특성(Handshake vs Data Stream) 차이를 
 * **Deterministic Cleanup**: 모든 자원은 `SSL`, `SSL_CTX`, `Socket`, `Pipe` 순으로 정해진 역순서에 따라 100% 명시적으로 해제됨을 보장하며, 단 1바이트의 메모리 누수도 허용하지 않습니다.
 
 ---
-**Author**: kodeholic (powered by Gemini)
+**Author**: kodeholic
